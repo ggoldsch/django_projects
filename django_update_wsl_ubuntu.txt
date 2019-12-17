@@ -1,0 +1,243 @@
+
+george@DESKTOP-IA1LU5M:~$ sudo apt update
+george@DESKTOP-IA1LU5M:~$ sudo apt upgrade
+
+
+
+### Create python3 virtual environment
+##sudo apt-get install python3-venv
+##python3 -m venv venv   # creates bin and bin/activate
+##george@DESKTOP-IA1LU5M:~$ source bin/activate
+
+##pip install --upgrade virtualenv
+##pip3 install --upgrade virtualenv
+##george@DESKTOP-IA1LU5M:~$ virtualenv -p python3 venv3
+##george@DESKTOP-IA1LU5M:~$ virtualenv -p /usr/bin/python3.6 venv3
+##george@DESKTOP-IA1LU5M:~$ source venv3/bin/activate
+##(venv) george@DESKTOP-IA1LU5M:~$ 
+############################
+
+sudo apt-get install python3-pip
+pip3 install --upgrade virtualenv
+virtualenv -p python3 venv3
+source venv3/bin/activate
+
+(venv3) george@DESKTOP-IA1LU5M:~$ type -a python
+python is aliased to `python3.7'
+# Change python alias to 3.6
+# Change python alias to 3.6
+# Change python alias to 3.6
+vi .bashrc --> alias python=python3.6
+
+############################
+#### in windows browser, download and install "visual studio code"
+(venv3) george@DESKTOP-IA1LU5M:~$ pip3 install django
+(venv3) george@DESKTOP-IA1LU5M:~$ pip install django-widget-tweaks
+
+############################
+(venv3) george@DESKTOP-IA1LU5M:~$ cd django_projects/
+
+https://code.visualstudio.com/docs/python/environments
+ctl+shift+P --> Python: Select Interpreter --> 
+.vscode --> settings.json -->
+    "python.pythonPath": "/home/george/venv3/bin/python3"
+
+code .      # launch visual studio code (VSC)
+
+##############################
+(venv3) george@DESKTOP-IA1LU5M:~/django_projects$ pwd
+/home/george/django_projects
+(venv3) george@DESKTOP-IA1LU5M:~/django_projects$ 
+django-admin.py startproject cms .      # appended ' .'
+
+cd cms
+(venv3) george@DESKTOP-IA1LU5M:~/django_projects/cms$ 
+python manage.py migrate
+python manage.py runserver
+
+http://localhost:8000/
+############################
+cd cms
+(venv3) george@DESKTOP-IA1LU5M:~/django_projects/cms/cms$ pwd
+/home/george/django_projects/cms/cms
+
+#-- Tutorial: Vitor Freitas
+https://github.com/sibtc/django-beginners-guide
+https://simpleisbetterthancomplex.com/series/2017/09/04/a-complete-beginners-guide-to-django-part-1.html
+https://simpleisbetterthancomplex.com/series/2017/09/11/a-complete-beginners-guide-to-django-part-2.html
+(venv3) george@DESKTOP-IA1LU5M:~/django_projects/cms$ 
+/home/george/django_projects/cms/
+python manage.py startapp boards
+vi settings.py --> INSTALLED_APPS= ..., 'boards',
+
+# Views are Python functions that receive an HttpRequest object and returns an HttpResponse object. Receive a request as a parameter and returns a response as a result. That’s the flow you have to keep in mind!
+#-- vi views.py
+from django.http import HttpResponse
+def home(request):
+    return HttpResponse('Hello, World!')
+
+#-- urls.py
+from django.conf.urls import url
+from boards import views
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    url('', views.home, name='home'),
+]
+
+#-- models.py (DB tables)
+from django.db import models
+# Create your models here.
+from django.contrib.auth.models import User
+class Board(models.Model):
+    name = models.CharField(max_length=30, unique=True)
+    description = models.CharField(max_length=100)
+class Topic(models.Model):
+    subject = models.CharField(max_length=255)
+    last_updated = models.DateTimeField(auto_now_add=True)
+    board = models.ForeignKey(Board, related_name='topics', on_delete=models.PROTECT)
+    starter = models.ForeignKey(User, related_name='topics', on_delete=models.PROTECT)
+class Post(models.Model):
+    message = models.TextField(max_length=4000)
+    topic = models.ForeignKey(Topic, related_name='posts', on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(null=True)
+    created_by = models.ForeignKey(User, related_name='posts', on_delete=models.PROTECT)
+    updated_by = models.ForeignKey(User, null=True, related_name='+', on_delete=models.PROTECT)
+#--
+
+# create DB Tables
+(venv3) george@DESKTOP-IA1LU5M:~/django_projects/cms$ 
+python manage.py makemigrations
+
+# View SQL statements
+python manage.py sqlmigrate boards 0001
+
+# execute SQL to build tables
+python manage.py migrate
+
+# django python interactive shell
+python manage.py shell
+>>> from boards.models import Board
+>>> board = Board(name='Django', description='This is a board about Django.')
+>>> board.save()
+>>> board.id    --> 1
+>>> board.name  --> 'Django'
+>>> board.description --> 'This is a board about Django.'
+# update field "description"
+>>> board.description = 'Django discussion board.'
+>>> board.save()
+>>> board.description --> 'Django discussion board.'
+# create another board using "objects" attribute of Model:
+>>> board = Board.objects.create(name='Python', description='General discussion about Python.')
+>>> board.id --> 2
+>>> board.name --> 'Python'
+# list all boards in DB using objects attribute
+>>> Board.objects.all() --> <QuerySet [<Board: Board object (1)>, <Board: Board object (2)>]>
+>>> exit()
+#--
+
+# Create an object without saving	
+    board = Board()
+# Save an object (create or update)	
+    board.save()
+# Create and save an object in the database
+    Board.objects.create(name='...', description='...')
+# List all objects
+    Board.objects.all()
+# Get a single object, identified by a field
+    Board.objects.get(id=1)
+# Create templates dir, create file: home.html in it.
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Boards</title>
+    </head>
+    <body>
+        <h1>Boards</h1>
+        {% for board in boards %}
+            {{ board.name}} <br>
+        {% endfor %}    
+    </body>
+</html>
+#--
+# vi settings.py
+TEMPLATES = [
+    { 'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [ os.path.join(BASE_DIR, 'templates') ],
+#--
+# updated: vi view.py
+from django.shortcuts import render
+# Create your views here.
+from .models import Board
+def home(request):
+    boards = Board.objects.all()
+    return render(request, 'home.html', {'boards' : boards})
+#--
+# Tests: vi tests.py
+from django.test import TestCase
+# Create your tests here.
+from django.urls import reverse
+from django.urls import resolve
+from .views import home
+class HomeTests(TestCase):
+    def test_home_view_status_code(self):
+        url = reverse('home')
+        response = self.client.get(url)
+        self.assertEquals(response.status_code, 200)
+    def test_home_url_resolves_home_view(self):
+        view = resolve('/')
+        self.assertEquals(view.func, home)
+#-- 
+(venv3) george@DESKTOP-IA1LU5M:~/django_projects/cms$ 
+python manage.py test
+python manage.py test --verbosity=2
+
+#-- Download bootstrap v4 compiled css and js
+https://getbootstrap.com/docs/4.0/getting-started/download/#compiled-css-and-js
+# copy bootstrap.min.css (explorer.exe) to cms/static/css/.
+C:\Users\ggoldsch\AppData\Local\Packages\CanonicalGroupLimited.UbuntuonWindows_79rhkp1fndgsc\LocalState\rootfs\home\george\django_projects
+
+# vi settings.py to point to directory containing bootstrap.min.css file
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [ os.path.join(BASE_DIR, 'static'), ]
+#--
+
+# Create user superuser "admin":
+python manage.py createsuperuser    # --> admin
+
+# launch admin site:
+http://127.0.0.1:8000/admin/
+
+# vi boards/admin.py
+from django.contrib import admin
+from .models import Board
+admin.site.register(Board)
+
+######## part 3
+# change db schema
+python manage.py makemigrations
+python manage.py migrate
+
+
+######## part 4 Auth
+# Create django app "accounts"
+(venv3) george@DESKTOP-IA1LU5M:~/django_projects/cms$ 
+django-admin startapp accounts
+
+#regex url.py use "re_path" instead of "url"
+    re_path(r'^signup/$', accounts_views.signup, name='signup'),
+george 12345jorge
+
+# static/js/*
+wget https://code.jquery.com/jquery-3.4.1.min.js
+wget https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js
+bootstrap.min.js from previous bootstrap download
+
+# reset password
+http://127.0.0.1:8000/reset/Mw/set-password/
+
+
+
+
+
