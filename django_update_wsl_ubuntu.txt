@@ -238,6 +238,48 @@ bootstrap.min.js from previous bootstrap download
 http://127.0.0.1:8000/reset/Mw/set-password/
 
 
+###########################
+# github.com
+george@DESKTOP-IA1LU5M:~/django_projects$ pwd
+/home/george/django_projects
+
+git config --global user.name   george goldschmied
+git config --global user.email  george.goldschmied@verizon.net
+git config --global --list
+user.email=george.goldschmied@verizon.net
+user.name=george goldschmied
+
+git init
+git status
+
+vi .gitignore   # create .gitignore file
+__pycache__/
+*.py[cod]
+.env
+venv/
+# SQLite database files
+*.sqlite3
+#--
+
+git add .
+git commit -m "Initial commit"
+
+# create remote repository
+https://github.com/ggoldsch/    # george.goldschmied@verizon.net
+# create new repository: django_projects
+# Public, do not initialize, do not add .gitignore, or license
+git remote add origin https://github.com/ggoldsch/django_projects.git
+
+git push -u origin master
+Username for 'https://github.com': ggoldsch
+Password for 'https://ggoldsch@github.com': 
+###########################
+
+
+
+
+
+
 
 
 
