@@ -237,6 +237,12 @@ bootstrap.min.js from previous bootstrap download
 # reset password
 http://127.0.0.1:8000/reset/Mw/set-password/
 
+###########################
+python manage.py test
+python manage.py test boards
+python manage.py test boards.tests.test_view_topic_posts
+python manage.py test boards.tests.test_view_topic_posts
+python manage.py test boards.tests.test_view_topic_posts.TopicPostsTests.test_status_code
 
 ###########################
 # github.com
